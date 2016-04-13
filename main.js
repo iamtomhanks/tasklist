@@ -1,5 +1,6 @@
 Tasks = new Mongo.Collection("tasks");
 
+
 if (Meteor.isClient){
 	Template.tasks.helpers({
 		tasks: function(){
@@ -13,11 +14,7 @@ if (Meteor.isClient){
 			
 			
 			
-			Tasks.insert({
-				name: name,
-				createdAt: new Date(),
-				userId: Meteor.userId()
-			});
+			Meteor.call('addTask', name);
 			
 			event.target.name.value = '';
 			
@@ -27,8 +24,10 @@ if (Meteor.isClient){
 		
 		"click .delete-task": function(event){
 			if(confirm('Delete Task?')){
-				Tasks.remove(this._id);	
+				Meteor.call('deleteTask', this._Id);	
 			}
+			
+			
 			
 			return false;
 				
@@ -37,3 +36,23 @@ if (Meteor.isClient){
 		
 	});
 }
+
+
+Meteor.methods({
+	addTask: function(name){
+		if(!Meteor.userId()) {
+			throw new Meteor.error('No Access!');
+		}	
+		
+		Tasks.insert({
+			name: name,
+			createdAt: new Date(),
+			userId: Meteor.userId()
+		});
+	},
+	
+	deleteTask: function(taskId){
+		Tasks.remove(taskId);	
+	}
+});
+
